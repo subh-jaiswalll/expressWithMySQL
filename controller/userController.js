@@ -1,142 +1,77 @@
 
 
-const db = require('../utils/db.js')
+const User = require('../models/userModels.js');
 
 
-const getUser = (req, res) => {
+// const createUser = (req, res) => {
+//     console.log("Body:", req.body);
 
-    
+//     if (!req.body) {
+//         return res.status(400).json({
+//             message: "req.body is undefined"
+//         });
+//     }
 
-    const getQuery = 'SELECT * FROM users';
+//     User.addUser(req.body, (err, result) => {
+//         if (err) {
+//             console.log(err);
+//             return res.status(500).json({
+//                 message: err.message
+//             });
+//         }
 
-
-    db.query(getQuery, (err, result) => {
-
-        if(err){
-            console.log(err)
+//         res.status(201).json({
+//             message: "User added successfully"
+//         });
+//     });
+// };
+const createUser = (req, res) => {
+    User.addUser(req.body, (err, result) => {
+        if (err) {
+            console.log("MYSQL ERROR:", err);   // <-- Important
             return res.status(500).json({
-                message : "Error fetching users..."
-            })
-        }
-
-        res.status(200).json(result)
-    })
-}
-
-
-const addUser = (req, res) => {
-
-    const {name, email} = req.body;
-
-    const addQuery = "INSERT INTO users (name, email) VALUES (?, ?)";
-
-    db.query(addQuery, [name, email], (err, result) =>{
-
-        if(err){
-            console.log(err)
-           return res.status(500).json({
-                message : "error inserting users..."
-            })
+                message: err.message
+            });
         }
 
         res.status(201).json({
-            message : "User insert successfully",
-            id : result.insertId
+            message: "User added successfully"
+        });
+    });
+};
+
+const getUsers = (req, res) => {
+
+    User.getUser((err, result) => {
+
+        if(err){
+            return res.status(500).json({
+                message : "Database Error"
+            })
+        }
+
+        res.json(result);
+    })
+}
+
+const deleteUser = (req, res) => {
+
+    User.deleteUser(req.params.id, (err, result) => {
+
+        if(err){
+            return res.status(500).json({
+                message : "Database Error"
+            })
+        }
+
+        res.json({
+            message : "User Deleted"
         })
     })
 }
 
-const getUserById = (req, res) => {
-
-    const { id } = req.params;
-
-    const getQuery = "SELECT * FROM users WHERE id = ?";
-
-    db.query(getQuery, [id], (err, result) => {
-
-        if (err) {
-            console.log(err);
-            return res.status(500).json({
-                message: "Error fetching user..."
-            });
-        }
-
-        if (result.length === 0) {
-            return res.status(404).json({
-                message: "User not found"
-            });
-        }
-
-        res.status(200).json(result[0]);
-    });
-};
-
-const updateUser = (req, res) => {
-    const { name, email } = req.body;
-
-    const { id } = req.params;
-
-    const query =
-        "UPDATE users SET name=?, email=? WHERE id=?";
-
-    db.query(query, [name, email, id], (err, result) => {
-
-        if (err) {
-            console.log(err);
-            return res.status(500).json({
-                message: "Error updating user"
-            });
-        }
-
-        if (result.affectedRows === 0) {
-            return res.status(404).json({
-                message: "User not found"
-            });
-        }
-
-        console.log("User Updated");
-
-        res.json({
-            message: "User updated successfully"
-        });
-
-    });
-}
-
-const deleteUser = (req, res) =>{ 
-    const { id } = req.params;
-
-    const query =
-        "DELETE FROM users WHERE id=?";
-
-    db.query(query, [id], (err, result) => {
-
-        if (err) {
-            console.log(err);
-            return res.status(500).json({
-                message: "Error deleting user"
-            });
-        }
-
-        if (result.affectedRows === 0) {
-            return res.status(404).json({
-                message: "User not found"
-            });
-        }
-
-        console.log("User Deleted");
-
-        res.json({
-            message: "User deleted successfully"
-        });
-
-    });
-
-}
 module.exports = {
-    getUser,
-    addUser,
-    getUserById,
-    updateUser,
+    createUser,
+    getUsers, 
     deleteUser
 }

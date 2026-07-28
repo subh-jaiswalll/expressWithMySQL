@@ -11,6 +11,7 @@ connection.connect((err) => {
 
     if (err) {
         console.log(err);
+        
         return;
     }
 
@@ -20,7 +21,8 @@ connection.connect((err) => {
     CREATE TABLE IF NOT EXISTS users(
         id INT AUTO_INCREMENT PRIMARY KEY,
         name VARCHAR(100) NOT NULL,
-        email VARCHAR(100) NOT NULL UNIQUE
+        email VARCHAR(100) NOT NULL UNIQUE,
+        phone VARCHAR(20)
     )`;
 
     connection.query(CreateTableQuery, (err) => {
