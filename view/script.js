@@ -1,63 +1,73 @@
-const form=document.getElementById("form");
-const users=document.getElementById("users");
+const API = "http://localhost:3000/expenses";
+const form = document.getElementById("expenseForm");
+const list = document.getElementById("expenseList");
 
-const API="http://localhost:3000/users";
+form.addEventListener("submit", async (e) => {
+    e.preventDefault();
 
-form.addEventListener("submit",async(e)=>{
+    const expense = {
+        amount: document.getElementById("amount").value,
+        description: document.getElementById("description").value,
+        category: document.getElementById("category").value
+    };
 
-e.preventDefault();
+    await axios.post(API, expense);
 
-const user={
+    form.reset();
 
-name:document.getElementById("name").value,
-
-email:document.getElementById("email").value,
-
-phone:document.getElementById("phone").value
-
-};
-
-await axios.post(API,user);
-
-form.reset();
-
-loadUsers();
-
+    loadExpenses();
 });
 
+async function loadExpenses() {
+    list.innerHTML = "";
 
-async function loadUsers(){
+    const res = await axios.get(API);
 
-users.innerHTML="";
+    res.data.forEach(expense => {
 
-const res=await axios.get(API);
+        const li = document.createElement("li");
 
-res.data.forEach(user=>{
+        li.innerHTML = `
+            ₹${expense.amount} -
+            ${expense.description} -
+            ${expense.category}
 
-const li=document.createElement("li");
+            <button onclick="editExpense(${expense.id},
+            '${expense.amount}',
+            '${expense.description}',
+            '${expense.category}')">
+            Edit
+            </button>
 
-li.innerHTML=`
-${user.name} -
-${user.email} -
-${user.phone}
+            <button onclick="deleteExpense(${expense.id})">
+            Delete
+            </button>
+        `;
 
-<button onclick="deleteUser(${user.id})">
-Delete
-</button>
-`;
-
-users.appendChild(li);
-
-});
-
+        list.appendChild(li);
+    });
 }
 
-async function deleteUser(id){
-
-await axios.delete(`${API}/${id}`);
-
-loadUsers();
-
+async function deleteExpense(id) {
+    await axios.delete(`${API}/${id}`);
+    loadExpenses();
 }
 
-loadUsers();
+async function editExpense(id, amount, description, category) {
+
+    document.getElementById("amount").value = amount;
+    document.getElementById("description").value = description;
+    document.getElementById("category").value = category;
+
+    await axios.put(`${API}/${id}`, {
+        amount,
+        description,
+        category
+    });
+
+        await axios.delete(`${API}/${id}`);
+
+    loadExpenses();
+}
+
+loadExpenses();

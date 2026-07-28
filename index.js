@@ -1,24 +1,18 @@
-const express = require('express');
-
-const PORT = 3000;
-
-const userRouter = require('./routes/userRoutes.js')
-
 const cors = require("cors");
+const path = require("path");
+const express = require('express')
 
-const path = require('path')
+const expenseRoutes = require("./routes/expenseRoutes");
 
 const app = express();
 
 app.use(cors());
-
 app.use(express.json());
 
-
-app.use('/users', userRouter);
+app.use("/expenses", expenseRoutes);
 
 app.use(express.static(path.join(__dirname, "view")));
 
-
-
-app.listen(PORT, () => console.log(`Sever is running at PORT ${PORT}`))
+app.listen(3000, () => {
+    console.log("Server running on port 3000");
+});
